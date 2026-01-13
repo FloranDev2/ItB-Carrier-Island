@@ -12,7 +12,7 @@ local backgrounds = {
 }
 
 for _, background in ipairs(backgrounds) do
-	modApi:appendAsset("img/combat/background"..background..".png",mod.resourcePath.."img/combat/background"..background..".png")
+	modApi:appendAsset("img/combat/background"..background..".png",     mod.resourcePath.."img/combat/background"..background..".png")
 	modApi:appendAsset("img/combat/background"..background.."_fade.png",mod.resourcePath.."img/combat/background"..background.."_fade.png")
 end
 
@@ -63,7 +63,7 @@ local fading = false
 
 --Functions
 local function IsBackground()
-	return options.Carrier_CaveBackground and options.Carrier_CaveBackground.enabled and modApi:getCurrentTileset() == TILESET
+	return options.Carrier_Background and options.Carrier_Background.enabled and modApi:getCurrentTileset() == TILESET
 end
 
 local function background_placed()
@@ -96,11 +96,11 @@ local function add_fade_in()
 	if not IsBackground() then return end
 	local terrain = Board:GetTerrain(Point(0,0))
 	if terrain == TERRAIN_HOLE then
-		Board:AddAnimation(Point(0,0),"cave_background_chasm_fade_in",ANIM_NO_DELAY)
+		Board:AddAnimation(Point(0,0),"cave_background_chasm_fade_in", ANIM_NO_DELAY)
 	elseif terrain == TERRAIN_WATER then
-		Board:AddAnimation(Point(0,0),"cave_background_water_fade_in",ANIM_NO_DELAY)
+		Board:AddAnimation(Point(0,0),"cave_background_water_fade_in", ANIM_NO_DELAY)
 	else
-		Board:AddAnimation(Point(0,0),"cave_background_fade_in",ANIM_NO_DELAY)
+		Board:AddAnimation(Point(0,0),"cave_background_fade_in", ANIM_NO_DELAY)
 	end
 	fading = true
 end
@@ -109,11 +109,11 @@ local function add_fade_out()
 	if not IsBackground() then return end
 	local terrain = Board:GetTerrain(Point(0,0))
 	if terrain == TERRAIN_HOLE then
-		Board:AddAnimation(Point(0,0),"cave_background_chasm_fade_out",ANIM_NO_DELAY)
+		Board:AddAnimation(Point(0,0),"cave_background_chasm_fade_out", ANIM_NO_DELAY)
 	elseif terrain == TERRAIN_WATER then
-		Board:AddAnimation(Point(0,0),"cave_background_water_fade_out",ANIM_NO_DELAY)
+		Board:AddAnimation(Point(0,0),"cave_background_water_fade_out", ANIM_NO_DELAY)
 	else
-		Board:AddAnimation(Point(0,0),"cave_background_fade_out",ANIM_NO_DELAY)
+		Board:AddAnimation(Point(0,0),"cave_background_fade_out", ANIM_NO_DELAY)
 	end
 end
 
@@ -167,8 +167,8 @@ local EVENT_onTerrainChanged = function(point, newTerrain, oldTerrain)
 end
 
 local function EVENT_onModsLoaded()
-  modApi:addTestMechEnteredHook(HOOK_AddBackground)
-  modApi:addMissionStartHook(HOOK_AddBackground)
+	modApi:addTestMechEnteredHook(HOOK_AddBackground)
+	modApi:addMissionStartHook(HOOK_AddBackground)
 	modApi:addMissionEndHook(HOOK_RemoveBackground)
 	--modapiext:addGameLoadedHook(HOOK_CheckBackground)
 end

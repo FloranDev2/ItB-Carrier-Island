@@ -46,8 +46,8 @@ end
 
 function mod:metadata()
 	modApi:addGenerationOption(
-		"Carrier_CaveBackground", --TODO
-		"Space Background", --or clouds bg?
+		"Carrier_Background", --TODO
+		"Background", --could be space / sky or inner walls (depending on the mission??)
 		"Check to turn on the cave background in each mission. Requires a restart.",
 		{ enabled = true } --Change default later
 	)
