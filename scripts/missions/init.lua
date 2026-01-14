@@ -28,8 +28,8 @@ local BASE_MISSIONS = {
 local Carrier_Missions = {
 	--Carrier
 	{"Omniconveyors", LOW_THREAT},
-	{"Rookies", LOW_THREAT},
-	{"Jambon", LOW_THREAT},
+	{"Rookies", HIGH_THREAT}, --not sure what HIGH_THREAT, but bringing more Vek to a fight where you basically have a 4th mech sounds fair
+	--{"Jambon", LOW_THREAT},
 
 	--Nautilus
 	--[[

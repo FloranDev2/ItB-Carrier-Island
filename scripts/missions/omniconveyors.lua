@@ -27,9 +27,10 @@ Carrier_Omniconveyor_Control = {
 	ImpactMaterial = IMPACT_METAL,
 	Pushable = false,
 	NonGrid = true,
-	Corporate = true,
+	Corporate = true, --this put a corp pilot instead of AI
 	IgnoreSmoke = true,
-	PilotDesc = "Omni-Conver\nControl Building",
+	--PilotDesc = "Omni-Conver\nControl Building",
+	--PilotDesc = "OMG LOOK AT ME IM FABULOUS", --does nothing
 	--TODO: tip image
 }
 AddPawn("Carrier_Omniconveyor_Control") 
@@ -100,9 +101,8 @@ function Mission_Carrier_Omniconveyors:StartMission()
 		for i = 1, 6 do
 			local curr = Point(i, j)
 			if not Board:IsBlocked(curr, PATH_PROJECTILE) then
-				--point = curr
+				--TODO: check if it's in the Belts list of points
 				list[#list+1] = curr
-				break
 			end
 		end
 	end
