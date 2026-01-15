@@ -176,3 +176,33 @@ end
 ]]
 
 --modApi.events.onNextTurn:subscribe(EVENT_nextTurn)
+
+
+
+
+--idk when that happen, but I'm copying stuff from mission_wind.lua
+--[[
+function Env_RandomWind:Plan()
+
+	self.WindDir = random_bool(2) and DIR_UP or DIR_DOWN
+	if self.RandomWind then
+		self.Indices = {}
+		for i = 1, 2 do
+			local new_index = random_int(5) + 1
+			while list_contains(self.Indices, new_index) or list_contains(self.LastIndices,new_index) do
+				new_index = random_int(5) + 1
+			end
+			self.Indices[#self.Indices+1] = new_index
+		end
+	else
+		if #self.LastIndices == 0 then
+			self.Indices = {6,7}
+		else
+			self.Indices[1] = self.Indices[1] - 2
+			self.Indices[2] = self.Indices[2] - 2
+		end
+	end
+	
+	return false
+end
+]]

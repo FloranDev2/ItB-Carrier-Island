@@ -15,14 +15,17 @@ Mission_Carrier_Rookies = Mission_Infinite:new{
 	BonusPool = {},
 	UseBonus = false,
 
-	--Rookie = -1,
 	truelch_rookie_id = -1, --test
+	killCount = 0,
+	killGoal = 2,
 }
 
 --Don't take Orbital / satellite mechs (or weird stuff like that that wouldn't behave as expected with my mission)
 local ROOKIES_EXCLUDED_MECHS =
 {
-	--"PunchMech", --just for test. It worked!
+	"BomblingMech", --the bomblings take credit for the kills, so it's impossible for the bombling mech to kill
+	"WallMech", --Hook Mech with grapple. No damage.
+	"IgniteMech", --Meteor Mech
 	"tatu_Satellite_Mech", --I think it'll be problematic
 }
 
@@ -39,7 +42,7 @@ local function IsPawnValid(pawn)
 		end
 	end
 
-	LOG("pawn: "..pawn.." -> class: ".._G[pawn]["Class"])
+	--LOG("pawn: "..pawn.." -> class: ".._G[pawn]["Class"])
 
 	return true
 end
@@ -55,6 +58,7 @@ function Mission_Carrier_Rookies:GetRandMechPawnType()
 
 	for k, v in pairs(PawnList) do
 		if IsPawnValid(v) then
+			LOG("[TRUELCH] valid mech: "..v)
 			mechList[#mechList+1] = v
 		end
 	end
@@ -116,22 +120,27 @@ function Mission_Carrier_Rookies:UpdateObjectives()
 	local m = GetCurrentMission()
 	if m ~= nil then
 		if self:IsRookieAlive() then
-			if m.killCount < m.killGoal then --"\n" doesn't work for the objective text :(
-				Game:AddObjective("Protect the Rookie and make him kill two enemies (Kills: "..tostring(m.killCount).." / "..tostring(m.killGoal)..")", OBJ_STANDARD, REWARD_REP, 2)
+			local txt = "Protect the Rookie and make him kill two enemies (Kills: "..tostring(m.killCount).." / "..tostring(m.killGoal)..")"
+			if m.killCount >= m.killGoal then
+				Game:AddObjective(txt, OBJ_COMPLETE, REWARD_REP, 2)
 			else
-				Game:AddObjective("Protect the Rookie and make him kill two enemies (Kills: "..tostring(m.killCount).." / "..tostring(m.killGoal)..")", OBJ_COMPLETE, REWARD_REP, 2)
+				Game:AddObjective(txt, OBJ_STANDARD, REWARD_REP, 2)
 			end
 		else
 			--rookie is pepsi
 			Game:AddObjective("Protect the Rookie and make him kill two enemies", OBJ_FAILED, REWARD_REP, 2)
-		end
-		
+		end		
 	end
 end
 
 function Mission_Carrier_Rookies:GetCompletedObjectives()
 	if self:IsRookieAlive() then
-		return self.Objectives
+		if self.killCount >= self.killGoal then
+			--return Objectives --will give you nothing
+			return Objective("Protect the Rookie and make him kill two enemies", 2, 2)
+		else
+			return Objective("Protect the Rookie and make him kill two enemies", 1, 2)
+		end
 	else
 		return self.Objectives:Failed()
 	end

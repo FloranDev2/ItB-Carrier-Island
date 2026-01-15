@@ -61,10 +61,8 @@ function Carrier_Omni_Skill:GetTargetArea(point)
 	return ret
 end
 
+--TODO: add some preview
 function Carrier_Omni_Skill:GetSkillEffect(p1, p2)
-
-	--LOG("Carrier_Omni_Skill:GetSkillEffect(p1: "..p1:GetString()..", p2: "..p2:GetString()..")")
-
 	local ret = SkillEffect()
 	ret:AddScript(string.format("GetCurrentMission().truelch_omniconveyor_dir = GetDirection(%s - %s)", p2:GetString(), p1:GetString()))
 	return ret
@@ -75,18 +73,17 @@ end
 ----- MISSION -----
 -------------------
 
---Mission_Carrier_Omniconveyors = Mission_Auto:new{ --mission_belt.lua
-Mission_Carrier_Omniconveyors = Mission_Infinite:new{ --mission_terraform.lua
+Mission_Carrier_Omniconveyors = Mission_Infinite:new{
 	Name = "Omniconveyor",
 
 	Environment = "Env_OmniBelt",
 
 	--MapTags = {"omnibelt"},
 
-	Objectives = Objective("Protecc", 1), --Should I do an id or the name directly?
+	Objectives = Objective("Protect the Omni-conveyor Control", 1), --Should I do an id or the name directly?
 
-	UseBonus = false, --true --is it used?
-	--BonusPool = {BONUS_GRID, BONUS_MECHS, BONUS_KILL_FIVE, BONUS_SELFDAMAGE, BONUS_DEBRIS, BONUS_BLOCK, BONUS_PACIFIST},
+	UseBonus = true,
+	BonusPool = {BONUS_GRID, BONUS_MECHS, BONUS_KILL_FIVE, BONUS_SELFDAMAGE, BONUS_DEBRIS, BONUS_BLOCK, BONUS_PACIFIST},
 
 	BuildingId = -1,
 }
@@ -123,8 +120,6 @@ function Mission_Carrier_Omniconveyors:UpdateObjectives()
 	end
 	
 	Game:AddObjective("Protect the Omni-Conveyor Control Building", status)
-	--Game:AddObjective("Protect the Omni-Conveyor Control Building", OBJ_STANDARD, REWARD_REP, status)
-	--Game:AddObjective("Protect the Omni-Conveyor Control Building", OBJ_STANDARD, REWARD_REP, 1)
 end
 
 function Mission_Carrier_Omniconveyors:GetCompletedObjectives()
@@ -145,9 +140,17 @@ end
 ---------------
 
 Env_OmniBelt = Environment:new{
---Env_OmniBelt = Env_Belt:new{ --maybe??
+	Image = "env_lightning", --tmp
+	Name = "Omni-Conveyor",
+	Text = "Unit on this tile will be moved according to the direction given by the Omni-Conveyor Control.",
+	StratText = "OMNI-CONVEYOR",
+
 	CombatIcon = "combat/tile_icon/tile_conveyor.png", --TODO
+	CombatName = "OMNI-CONVEYOR",
+
 	Belts = nil,
+
+	--Instant = true, --?!
 }
 
 function Env_OmniBelt:IsValidTarget(p)
@@ -212,7 +215,7 @@ function Env_OmniBelt:MarkBoard()
 
 		for i, v in ipairs(self.Belts) do
 			Board:SetCustomTile(v, "conveyor"..dir..".png")
-			Board:MarkSpaceDesc(v, "belt")
+			Board:MarkSpaceDesc(v, "TRUELCH_OMNICONVEYOR")
 			Board:SetTerrainIcon(v, "arrow_"..dir)
 		end
 	else
@@ -227,7 +230,7 @@ function Env_OmniBelt:MarkBoard()
 			]]
 
 			Board:SetCustomTile(v, "conveyor0.png")
-			Board:MarkSpaceDesc(v, "belt")
+			Board:MarkSpaceDesc(v, "TRUELCH_OMNICONVEYOR")
 			Board:SetTerrainIcon(v, "arrow_0")
 		end
 	end

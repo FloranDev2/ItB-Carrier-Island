@@ -14,9 +14,9 @@ local LOW_THREAT = false
 
 local BASE_MISSIONS = {
 
-	{"Train", HIGH_THREAT}, --tmp, just to have a high threat mission
-	{"Survive", LOW_THREAT}, --What is this mission? In vanilla, it's an empty file
-	{"Repair", LOW_THREAT},
+	--{"Train", HIGH_THREAT}, --tmp, just to have a high threat mission
+	--{"Survive", LOW_THREAT}, --What is this mission? In vanilla, it's an empty file
+	--{"Repair", LOW_THREAT},
 
 	--One of these mission has bugged briefing:
 	--{"Respawn", LOW_THREAT},
@@ -28,23 +28,8 @@ local BASE_MISSIONS = {
 local Carrier_Missions = {
 	--Carrier
 	{"Omniconveyors", LOW_THREAT},
-	{"Rookies", HIGH_THREAT}, --not sure what HIGH_THREAT, but bringing more Vek to a fight where you basically have a 4th mech sounds fair
-	--{"Jambon", LOW_THREAT},
-
-	--Nautilus
-	--[[
-	{"Incinerator", LOW_THREAT}, --Incomplete
-	{"Falling_Mountains", LOW_THREAT}, --Incomplete
-	{"Digging", HIGH_THREAT}, --Incomplete
-	{"Mining", HIGH_THREAT}, --Incomplete
-	{"Crumbling", LOW_THREAT}, --Incomplete, testing
-	{"Spikes", LOW_THREAT},
-	{"Charges", HIGH_THREAT}, --incomplete
-	{"Minecarts", HIGH_THREAT}, --incomplete
-	{"Drilltrain", HIGH_THREAT}, --incomplete
-	{"Chasms", HIGH_THREAT}, --incomplete
-	{"Tremors", LOW_THREAT}
-	]]
+	{"Rookies", HIGH_THREAT},
+	{"Depressurization", LOW_THREAT},
 }
 
 function this:init(mod)
@@ -71,6 +56,9 @@ function this:init(mod)
 		missionList:addMission(mission_name, threat)
 	end
 
+
+
+	--
 	require(path.."missionImages")
 	require(path.."text")
 end
