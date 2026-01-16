@@ -206,3 +206,88 @@ function Env_RandomWind:Plan()
 	return false
 end
 ]]
+
+----------------------------------------------------------------
+
+
+--Charge or just push?
+--If I do charge, I need to do some extra checks
+--I need to make sure units won't move in sync so they don't bump each other in the chasm tile lol
+--ApplyEffect isn't used in tatu's milk so I guess it doesn't exist for attack env?
+function Env_Depressurization:ApplyEffect()
+	LOG("[TRUELCH] Env_Depressurization:ApplyEffect()")
+	local effect = SkillEffect()
+
+	effect:AddSound("/props/wind_mission")
+	effect.iOwner = ENV_EFFECT
+
+	for j = 0, Board:GetSize().y - 1 do
+		for i = 0, Board:GetSize().x - 1 do
+			local curr = Point(i, j)
+			--Maybe there's a way to extract all the tiles of chasm type?
+			if Board:GetTerrain(curr) == TERRAIN_CHASM then
+				for dir = DIR_START, DIR_END do
+					for k = 0, 7 do
+						local curr2 = curr + DIR_VECTORS[dir]*k
+						local pawn = Board:GetPawn(curr2)
+						local dir2 = GetDirection(curr - curr2)
+
+						--V1: just a single push
+						local damage = SpaceDamage()
+						damage.loc = curr
+						damage.iPush = dir2
+						damage.sAnimation = "windpush_"..dir2 --does it work with all directions?
+						--TODO: delay. I'm not sure to understand what they did in mission_wind for that
+
+						if pawn ~= nil then
+							damage.fDelay = 0.2 --not what I want to do, but that's just a reminder I need to do something here
+						end
+
+						--V2: CHAAAARGE!!
+					end
+				end
+			end
+		end
+	end
+
+	Board:AddEffect(effect)
+
+	return false--no more to do
+end
+
+
+--Something went wrong in Plan Environment
+--scripts/environments.lua:59: attempt to get length of field 'Locations' (a nil value)
+function Env_RandomWind:Plan()
+	LOG("[TRUELCH] Env_Depressurization:Plan()")
+end
+
+
+--What to do with tile that are aligned with multiple chasms?
+function Env_Depressurization:MarkBoard() --/scripts/advanced/missions/sand/mission_wind.lua
+	--That's a lot of loops!
+	for j = 0, Board:GetSize().y - 1 do
+		for i = 0, Board:GetSize().x - 1 do
+			local curr = Point(i, j)
+			if Board:GetTerrain(curr) == TERRAIN_CHASM then
+				LOG("")
+				for dir = DIR_START, DIR_END do
+					for k = 0, 7 do
+						local curr2 = curr + DIR_VECTORS[dir]*k
+						local pawn = Board:GetPawn(curr2)
+						local dir2 = GetDirection(curr - curr2)
+
+						LOG("dir: "..tostring(dir).." -> dir2: "..tostring(dir2))
+
+						local image = "advanced/combat/tile_icon/tile_wind_"..tostring(dir2)..".png"
+
+						if pawn ~= nil and not pawn:IsGuarding() then
+							Board:MarkSpaceImage(space, image, GL_Color(255, 226, 88, 0.75))
+							Board:MarkSpaceDesc(space, "wind") --tmp
+						end
+					end
+				end
+			end
+		end
+	end
+end

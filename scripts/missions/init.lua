@@ -16,7 +16,7 @@ local BASE_MISSIONS = {
 
 	--{"Train", HIGH_THREAT}, --tmp, just to have a high threat mission
 	--{"Survive", LOW_THREAT}, --What is this mission? In vanilla, it's an empty file
-	--{"Repair", LOW_THREAT},
+	{"Repair", LOW_THREAT},
 
 	--One of these mission has bugged briefing:
 	--{"Respawn", LOW_THREAT},
@@ -50,13 +50,10 @@ function this:init(mod)
 	for _, table in ipairs(Carrier_Missions) do
 		local name = table[1]
 		local mission_name = "Mission_Carrier_"..name
-		--local mission_name = "Mission_Nautilus_"..name
 		local threat = table[2]
 		require(path..string.lower(name))
 		missionList:addMission(mission_name, threat)
 	end
-
-
 
 	--
 	require(path.."missionImages")

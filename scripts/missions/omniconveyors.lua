@@ -16,7 +16,6 @@ a.carrier_omniconveyor_controld = a.trapped_bldgd:new{Image = "units/mission/car
 ----- PAWN AND SKILL -----
 --------------------------
 
---Carrier_Omniconveyor_Control = Trapped_Building:new{
 Carrier_Omniconveyor_Control = {
 	Name = "Omni-conveyor Control",
 	Image = "carrier_omniconveyor_control",
@@ -27,11 +26,8 @@ Carrier_Omniconveyor_Control = {
 	ImpactMaterial = IMPACT_METAL,
 	Pushable = false,
 	NonGrid = true,
-	Corporate = true, --this put a corp pilot instead of AI
+	Corporate = true,
 	IgnoreSmoke = true,
-	--PilotDesc = "Omni-Conver\nControl Building",
-	--PilotDesc = "OMG LOOK AT ME IM FABULOUS", --does nothing
-	--TODO: tip image
 }
 AddPawn("Carrier_Omniconveyor_Control") 
 

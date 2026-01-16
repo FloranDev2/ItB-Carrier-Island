@@ -15,12 +15,12 @@ Mission_Carrier_Depressurization = Mission_Infinite:new{
 
 	Environment = "Env_Depressurization",
 
-	--MapTags = {"depressurization"},
+	MapTags = {"depressurization"}, --maps with some NON ALIGNED chasms
 
 	TurnLimit = 4,
 
 	UseBonus = true,
-	BonusPool = {BONUS_GRID, BONUS_MECHS, BONUS_KILL_FIVE, BONUS_SELFDAMAGE, BONUS_DEBRIS, BONUS_BLOCK, BONUS_PACIFIST},
+	BonusPool = {BONUS_GRID, BONUS_MECHS, BONUS_KILL_FIVE, BONUS_SELFDAMAGE, BONUS_DEBRIS, BONUS_BLOCK--[[, BONUS_PACIFIST]]},
 }
 
 
@@ -29,120 +29,98 @@ Mission_Carrier_Depressurization = Mission_Infinite:new{
 ---------------
 
 Env_Depressurization = Env_Attack:new{
+	Image = "env_lightning", --tmp
 	Name = "Depressurization",
-	Text = "Chasms will attract aligned units.", --charge or just push?
-	--CombatName = "DEPRESSURIZATION", --where is that located?
+
+	CombatName = "DEPRESSURIZATION", --during mission, the text above the ENV icon, which are left to Attack Order
+	Text = "Chasms will attract aligned units.", --the text when you hover your mouse above the icon
+
 	CombatIcon = "combat/tile_icon/tile_truelch_push_0.png",
-	--StratText = "TREMORS", --where is that located?
+	StratText = "DEPRESSURIZATION", --on briefing preview
+
 	--What's the stuff below?
-	--Removals = 2,
-	--Instant = true,
+	--Instant = true, --idk what it is
 }
 
---What to do with tile that are aligned with multiple chasms?
-function Env_Depressurization:MarkBoard() --/scripts/advanced/missions/sand/mission_wind.lua
-	--That's a lot of loops!
-	for j = 0, Board:GetSize().y - 1 do
-		for i = 0, Board:GetSize().x - 1 do
-			local curr = Point(i, j)
-			if Board:GetTerrain(curr) == TERRAIN_CHASM then
-				for dir = DIR_START, DIR_END do
-					for k = 0, 7 do
-						local curr2 = curr + DIR_VECTORS[dir]*k
-						local pawn = Board:GetPawn(curr2)
-						local dir2 = GetDirection(curr - curr2)
+function Env_Depressurization:MarkSpace(space, active)
+	for dir = DIR_START, DIR_END do
+		local dir2 = (dir+2)%4
+		for k = 1, 7 do
+			local curr = space + DIR_VECTORS[dir]*k
+			local pawn = Board:GetPawn(curr)			
+			Board:MarkSpaceDesc(curr, "TRUELCH_DEPRESSURIZATION")
+			if pawn ~= nil and not pawn:IsGuarding() and not pawn:IsFlying() then
+				Board:MarkSpaceDesc(curr, "TRUELCH_DEPRESSURIZATION", EFFECT_DEADLY)
+			end
 
-						LOG("dir: "..tostring(dir).." -> dir2: "..tostring(dir2))
+			Board:MarkSpaceImage(curr, "combat/tile_icon/tile_truelch_push_"..tostring(dir2)..".png", GL_Color(255, 226, 88, 0.75))
+			if active then
+				Board:MarkSpaceImage(curr, "combat/tile_icon/tile_truelch_push_"..tostring(dir2)..".png", GL_Color(255, 150, 150, 0.75))
+			end
 
-						local image = "advanced/combat/tile_icon/tile_wind_"..tostring(dir2)..".png"
-
-						if pawn ~= nil and not pawn:IsGuarding() then
-							Board:MarkSpaceImage(space, image, GL_Color(255, 226, 88, 0.75))
-							Board:MarkSpaceDesc(space, "wind") --tmp
-						end
-					end
-				end
+			if not Board:IsValid(curr) or Board:IsBlocked(curr, PATH_PROJECTILE) then
+				break
 			end
 		end
 	end
 end
 
-function Env_Depressurization:Start()
-	LOG("[TRUELCH] Env_Depressurization:Start()")
-	--self.Indices = {}
-	--self.LastIndices = {}
-end
+function Env_Depressurization:GetAttackEffect(location)
+	--LOG("[TRUELCH] Env_Depressurization:GetAttackEffect(location: "..location:GetString()..")")
 
-function Env_Depressurization:IsEffect()
-	LOG("[TRUELCH] Env_Depressurization:IsEffect()")
-	return true
-end
-
-
-function Env_RandomWind:Plan()
-	LOG("[TRUELCH] Env_Depressurization:Plan()")
-end
-
-
---Charge or just push?
---If I do charge, I need to do some extra checks
---I need to make sure units won't move in sync so they don't bump each other in the chasm tile lol
-function Env_Depressurization:ApplyEffect()
-	LOG("[TRUELCH] Env_Depressurization:ApplyEffect()")
 	local effect = SkillEffect()
 
 	effect:AddSound("/props/wind_mission")
-	effect.iOwner = ENV_EFFECT
 
-	for j = 0, Board:GetSize().y - 1 do
-		for i = 0, Board:GetSize().x - 1 do
-			local curr = Point(i, j)
-			--Maybe there's a way to extract all the tiles of chasm type?
-			if Board:GetTerrain(curr) == TERRAIN_CHASM then
-				for dir = DIR_START, DIR_END do
-					for k = 0, 7 do
-						local curr2 = curr + DIR_VECTORS[dir]*k
-						local pawn = Board:GetPawn(curr2)
-						local dir2 = GetDirection(curr - curr2)
+	--We need to be looking for a chasm
 
-						--V1: just a single push
-						local damage = SpaceDamage()
-						damage.loc = curr
-						damage.iPush = dir2
-						damage.sAnimation = "windpush_"..dir2 --does it work with all directions?
-						--TODO: delay. I'm not sure to understand what they did in mission_wind for that
+	--What if we found multiple chasms? -> use the first found
+	--What if we find none? --> do nothing
+	for dir = DIR_START, DIR_END do
+		for k = 1, 7 do
+			local curr = location + DIR_VECTORS[dir]*k
+			local dir2 = GetDirection(location - curr)
+			local pawn = Board:GetPawn(curr)
 
-						if pawn ~= nil then
-							damage.fDelay = 0.2 --not what I want to do, but that's just a reminder I need to do something here
-						end
+			--I actually want the wind effect to be played on all tiles on this direction (until I find an obstacle?)
+			local damage = SpaceDamage(curr, 0)
+			damage.sAnimation = "windpush_"..dir2
+			effect:AddDamage(damage)
 
-						--V2: CHAAAARGE!!
-					end
-				end
+			if pawn ~= nil then
+				--LOG("[TRUELCH] GetAttackEffect -> curr: "..curr:GetString())
+				--V1: push
+				--[[
+				local damage = SpaceDamage(curr, 0, dir2)
+				effect:AddDamage(damage)
+				]]
+
+				--V2: charge
+				effect:AddCharge(Board:GetSimplePath(curr, location), NO_DELAY) --FULL_DELAY --NO_DELAY
+				break
+
+			elseif not Board:IsValid(curr) or Board:IsBlocked(curr, PATH_PROJECTILE) then
+				--LOG("[TRUELCH] GetAttackEffect -> BREAK")
+				break
 			end
 		end
 	end
 
-	Board:AddEffect(effect)
+	--LOG("[TRUELCH] GetAttackEffect -> RETURN")
 
-	return false--no more to do
-end
-
---[[
-function Env_Depressurization:GetAttackEffect(location, effect) --When instant, passes in effect
-	local damage = SpaceDamage(location)
-	if location ~= Point(0,0) then --Could be better
-		damage.iTerrain = TERRAIN_HOLE
-		--damage.fDelay = 0.2
-		effect:AddDamage(damage)
-	else
-		damage.iCrack = EFFECT_CREATE
-		effect:AddDamage(damage)
-		damage.iDamage = 1
-		effect:AddDamage(damage)
-	end
-	effect:AddBurst(location, "Emitter_Crack_Start2", DIR_NONE)
-	effect:AddScript(string.format("AddCustomWaterfall(%s)", location:GetString()))
 	return effect
 end
-]]
+
+--We select all chasms
+function Env_Depressurization:SelectSpaces()
+	local ret = {}
+	for j = 0, Board:GetSize().y - 1 do
+		for i = 0, Board:GetSize().x - 1 do
+			local curr = Point(i, j)
+			if Board:GetTerrain(curr) == TERRAIN_HOLE then
+				ret[#ret+1] = curr
+			end
+		end
+	end
+	return ret
+end
